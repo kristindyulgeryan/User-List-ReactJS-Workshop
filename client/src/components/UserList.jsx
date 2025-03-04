@@ -9,7 +9,7 @@ import UserInfo from "./UserInfo.jsx";
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [userIdInfo, setUserIdInfo]= useState() //undefined 
+  const [userIdInfo, setUserIdInfo]= useState(null) 
 
   useEffect(() => {
     userService.getAll().then((result) => {
@@ -45,6 +45,10 @@ export default function UserList() {
     
   }
 
+  const userInfoCloseHandler=()=>{
+      setUserIdInfo(null)
+  }
+
   return (
     <>
       <section className="card users-container">
@@ -54,11 +58,15 @@ export default function UserList() {
           <UserCreate
             onClose={closeCreateUserClickHanlder}
             onSave={saveCreateUserClickHandler}
+
           />
         )}
 
         {userIdInfo && (
-          <UserInfo userId={userIdInfo}/>
+          <UserInfo 
+          userId={userIdInfo}
+          onClose={userInfoCloseHandler}
+          />
           )}
 
 
