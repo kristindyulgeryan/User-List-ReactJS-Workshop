@@ -5,11 +5,13 @@ import UserListItem from "./UserListItem.jsx";
 import userService from "../services/userService.js";
 import UserCreate from "./UserCreate.jsx";
 import UserInfo from "./UserInfo.jsx";
+import UserDelete from "./UserDelete.jsx";
 
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [userIdInfo, setUserIdInfo]= useState(null) 
+  const [userIdInfo, setUserIdInfo]= useState(null);
+  const[userIdDelete, setUserIdDelete]=useState(null)
 
   useEffect(() => {
     userService.getAll().then((result) => {
@@ -49,6 +51,26 @@ export default function UserList() {
       setUserIdInfo(null)
   }
 
+  const userDeleteClickHandler=(userId)=>{
+     setUserIdDelete(userId)
+  }
+
+  const userDeleteCloseHandler=()=>{
+    setUserIdDelete(null)
+  }
+
+  const userDeleteHandler= async()=>{
+    // delete request to server
+    await userService.delete(userIdDelete)
+
+    //delete from locale state
+    setUsers(state => state.filter(user => user._id !== userIdDelete))
+
+    //close modal
+    setUserIdDelete(null)
+  }
+
+
   return (
     <>
       <section className="card users-container">
@@ -69,7 +91,11 @@ export default function UserList() {
           />
           )}
 
-
+          {userIdDelete && (
+            <UserDelete 
+            onClose={userDeleteCloseHandler}
+            onDelete={userDeleteHandler}
+            />)}
 
         {/* <!-- Table component --> */}
         <div className="table-wrapper">
@@ -224,7 +250,7 @@ export default function UserList() {
             <tbody>
               {/* <!-- Table row component --> */}
               {users.map((user) => (
-                <UserListItem key={user._id} onInfoClick={userInfoClickHandler} {...user} />
+                <UserListItem key={user._id} onInfoClick={userInfoClickHandler} onDeleteClick={userDeleteClickHandler} {...user} />
               ))}
             </tbody>
           </table>
