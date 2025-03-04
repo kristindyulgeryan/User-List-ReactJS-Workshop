@@ -4,10 +4,12 @@ import Search from "./Search.jsx";
 import UserListItem from "./UserListItem.jsx";
 import userService from "../services/userService.js";
 import UserCreate from "./UserCreate.jsx";
+import UserInfo from "./UserInfo.jsx";
 
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
+  const [userIdInfo, setUserIdInfo]= useState() //undefined 
 
   useEffect(() => {
     userService.getAll().then((result) => {
@@ -38,6 +40,11 @@ export default function UserList() {
     setShowCreate(false);
   };
 
+  const userInfoClickHandler=(userId)=>{
+    setUserIdInfo(userId)
+    
+  }
+
   return (
     <>
       <section className="card users-container">
@@ -49,6 +56,13 @@ export default function UserList() {
             onSave={saveCreateUserClickHandler}
           />
         )}
+
+        {userIdInfo && (
+          <UserInfo userId={userIdInfo}/>
+          )}
+
+
+
         {/* <!-- Table component --> */}
         <div className="table-wrapper">
           {/* <!-- Overlap components  --> */}
@@ -202,7 +216,7 @@ export default function UserList() {
             <tbody>
               {/* <!-- Table row component --> */}
               {users.map((user) => (
-                <UserListItem key={user._id} {...user} />
+                <UserListItem key={user._id} onInfoClick={userInfoClickHandler} {...user} />
               ))}
             </tbody>
           </table>
