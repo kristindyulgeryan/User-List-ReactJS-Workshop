@@ -10,8 +10,9 @@ import UserDelete from "./UserDelete.jsx";
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [userIdInfo, setUserIdInfo]= useState(null);
-  const[userIdDelete, setUserIdDelete]=useState(null)
+  const [userIdInfo, setUserIdInfo] = useState(null);
+  const [userIdDelete, setUserIdDelete] = useState(null);
+  const [userIdEdit, setUserIdEdit] = useState(null);
 
   useEffect(() => {
     userService.getAll().then((result) => {
@@ -25,11 +26,12 @@ export default function UserList() {
 
   const closeCreateUserClickHanlder = () => {
     setShowCreate(false);
+    setUserIdEdit(null);
   };
 
   const saveCreateUserClickHandler = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    const formData = new FormData(e.target.parentElement.parentElement);
     const userData = Object.fromEntries(formData);
 
     //create new user
@@ -42,34 +44,54 @@ export default function UserList() {
     setShowCreate(false);
   };
 
-  const userInfoClickHandler=(userId)=>{
-    setUserIdInfo(userId)
-    
-  }
+  const userInfoClickHandler = (userId) => {
+    setUserIdInfo(userId);
+  };
 
-  const userInfoCloseHandler=()=>{
-      setUserIdInfo(null)
-  }
+  const userInfoCloseHandler = () => {
+    setUserIdInfo(null);
+  };
 
-  const userDeleteClickHandler=(userId)=>{
-     setUserIdDelete(userId)
-  }
+  const userDeleteClickHandler = (userId) => {
+    setUserIdDelete(userId);
+  };
 
-  const userDeleteCloseHandler=()=>{
-    setUserIdDelete(null)
-  }
+  const userDeleteCloseHandler = () => {
+    setUserIdDelete(null);
+  };
 
-  const userDeleteHandler= async()=>{
+  const userDeleteHandler = async () => {
     // delete request to server
-    await userService.delete(userIdDelete)
+    await userService.delete(userIdDelete);
 
     //delete from locale state
-    setUsers(state => state.filter(user => user._id !== userIdDelete))
+    setUsers((state) => state.filter((user) => user._id !== userIdDelete));
 
     //close modal
-    setUserIdDelete(null)
-  }
+    setUserIdDelete(null);
+  };
 
+  const userEditClickHandler = (userId) => {
+    setUserIdEdit(userId);
+  };
+
+  const saveEditUserClickHandler = async (e) => {
+    const userId = userIdEdit;
+    e.preventDefault();
+
+    // get form data
+    const formData = new FormData(e.target.parentElement.parentElement);
+    const userData = Object.fromEntries(formData);
+
+    //update user on server
+    const updatedUser = await userService.update(userId, userData);
+    //update locale state
+    setUsers((state) =>
+      state.map((user) => (user._id === userId ? updatedUser : user))
+    );
+    // close modal
+    setUserIdEdit(null);
+  };
 
   return (
     <>
@@ -80,22 +102,28 @@ export default function UserList() {
           <UserCreate
             onClose={closeCreateUserClickHanlder}
             onSave={saveCreateUserClickHandler}
-
           />
         )}
 
         {userIdInfo && (
-          <UserInfo 
-          userId={userIdInfo}
-          onClose={userInfoCloseHandler}
-          />
-          )}
+          <UserInfo userId={userIdInfo} onClose={userInfoCloseHandler} />
+        )}
 
-          {userIdDelete && (
-            <UserDelete 
+        {userIdDelete && (
+          <UserDelete
             onClose={userDeleteCloseHandler}
             onDelete={userDeleteHandler}
-            />)}
+          />
+        )}
+
+        {userIdEdit && (
+          <UserCreate
+            userId={userIdEdit}
+            onClose={closeCreateUserClickHanlder}
+            onSave={saveCreateUserClickHandler}
+            onEdit={saveEditUserClickHandler}
+          />
+        )}
 
         {/* <!-- Table component --> */}
         <div className="table-wrapper">
@@ -250,7 +278,13 @@ export default function UserList() {
             <tbody>
               {/* <!-- Table row component --> */}
               {users.map((user) => (
-                <UserListItem key={user._id} onInfoClick={userInfoClickHandler} onDeleteClick={userDeleteClickHandler} {...user} />
+                <UserListItem
+                  key={user._id}
+                  onInfoClick={userInfoClickHandler}
+                  onDeleteClick={userDeleteClickHandler}
+                  onEditClick={userEditClickHandler}
+                  {...user}
+                />
               ))}
             </tbody>
           </table>

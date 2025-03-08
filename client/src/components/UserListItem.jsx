@@ -10,6 +10,7 @@ export default function UserListItem({
   imageUrl,
   onInfoClick,
   onDeleteClick,
+  onEditClick,
 }) {
   return (
     <>
@@ -26,10 +27,13 @@ export default function UserListItem({
         <td>{email}</td>
         <td>{phoneNumber}</td>
         <td>{fromIsoDate(createdAt)}</td>
-       
 
-        <td className="actions" >
-          <button className="btn edit-btn" title="Edit">
+        <td className="actions">
+          <button
+            className="btn edit-btn"
+            title="Edit"
+            onClick={() => onEditClick(_id)}
+          >
             <svg
               aria-hidden="true"
               focusable="false"
@@ -46,7 +50,11 @@ export default function UserListItem({
               ></path>
             </svg>
           </button>
-          <button className="btn delete-btn" title="Delete" onClick={()=>onDeleteClick(_id)}>
+          <button
+            className="btn delete-btn"
+            title="Delete"
+            onClick={() => onDeleteClick(_id)}
+          >
             <svg
               aria-hidden="true"
               focusable="false"
@@ -63,7 +71,11 @@ export default function UserListItem({
               ></path>
             </svg>
           </button>
-          <button className="btn info-btn" title="Info" onClick={()=>onInfoClick(_id)}>
+          <button
+            className="btn info-btn"
+            title="Info"
+            onClick={() => onInfoClick(_id)}
+          >
             <svg
               aria-hidden="true"
               focusable="false"
